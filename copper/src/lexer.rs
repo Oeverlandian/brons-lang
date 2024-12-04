@@ -1,8 +1,6 @@
 use logos::Logos;
-use crate::error::LexerError;
 
 #[derive(Logos, Debug, PartialEq)]
-#[logos(error = LexerError)]
 pub enum TokenKind {
 
     // Skips
@@ -39,7 +37,9 @@ pub enum TokenKind {
     #[token("import")]
     Import, 
     #[token("as")]
-    As, 
+    As,
+    #[token("unsafe")]
+    Unsafe,
     #[token("()")]
     Void, 
     #[token("int")]

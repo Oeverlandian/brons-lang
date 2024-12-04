@@ -1,9 +1,7 @@
-use error::{LexerError, LexerErrorKind};
 use logos::Logos;
 use std::fs;
 
 mod lexer;
-mod error;
 
 fn main() {
 
@@ -22,31 +20,8 @@ fn main() {
             Ok(token) => {
                 println!("{:?}", token);
             }
-            Err(err) => {
-                println!("Lexer error: {}", err);
-                match err {
-                    LexerError { kind: LexerErrorKind::InvalidCharacter(c), .. } => {
-                        println!("Invalid character: {}", c);
-                    }
-                    LexerError { kind: LexerErrorKind::UnterminatedString, .. } => {
-                        println!("Unterminated string");
-                    }
-                    LexerError { kind: LexerErrorKind::UnterminatedCharLiteral, .. } => {
-                        println!("Unterminated char literal");
-                    }
-                    LexerError { kind: LexerErrorKind::EmptyCharLiteral, .. } => {
-                        println!("Empty char literal");
-                    }
-                    LexerError { kind: LexerErrorKind::InvalidEscapeSequence(s), .. } => {
-                        println!("Invalid escape sequence: {}", s);
-                    }
-                    LexerError { kind: LexerErrorKind::UnexpectedEOF, .. } => {
-                        println!("Unexpected End Of File");
-                    } 
-                    _ => {
-                        println!("Unknown lexer error");
-                    }
-                }
+            Err(()) => {
+                eprintln!("Error!")
             }
         }
     }
