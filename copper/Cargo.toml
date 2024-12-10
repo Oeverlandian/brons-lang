@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 logos = "0.14.3"
-chumsky = "0.9.3"
