@@ -1,5 +1,40 @@
-import "io";
+import io.printl;
+import unsafe_function;
 
-func main() {
-    print("Hello World");
+struct test {
+  field_1: int,
+  field_2: string,
+}
+
+var a, c = 14, 0;
+
+var test = Test {
+  field_1: 12,
+  field_2: "12",
+};
+
+func add(a: int, b: int) {
+  return a + b;
+}
+
+c = add(a, test_test_field);
+
+println(c);
+
+arr = [1, 2, 3, 4, 5];
+
+for i in arr {
+  println(i);
+}
+
+printl(-c);
+
+var i = 0;
+while {
+  i += 1;
+  println(i);
+}
+
+unsafe {
+  unsafe_function();
 }

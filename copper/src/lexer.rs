@@ -1,6 +1,6 @@
 use logos::Logos;
 
-#[derive(Logos, Debug, PartialEq)]
+#[derive(Logos, Debug, PartialEq, Clone)]
 pub enum TokenKind {
 
     // Skips
@@ -14,8 +14,6 @@ pub enum TokenKind {
     // Keywords
     #[token("var")]
     Var,
-    #[token("mut")]
-    Mut,
     #[token("const")]
     Const,
     #[token("func")]
@@ -30,9 +28,13 @@ pub enum TokenKind {
     While, 
     #[token("for")]
     For,
+    #[token("in")]
+    In,
+    #[token("continue")]
+    Continue,
     #[token("break")]
     Break,
-    #[token("Return")]
+    #[token("return")]
     Return, 
     #[token("import")]
     Import, 
@@ -40,18 +42,6 @@ pub enum TokenKind {
     As,
     #[token("unsafe")]
     Unsafe,
-    #[token("()")]
-    Void, 
-    #[token("int")]
-    Int, 
-    #[token("float")]
-    Float, 
-    #[token("char")]
-    Char,
-    #[token("str")]
-    Str,
-    #[token("bool")]
-    Bool,
 
     // Identifier
     #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice().to_string())]
@@ -137,10 +127,16 @@ pub enum TokenKind {
     LeftBracket,        // [
     #[token("]")]
     RightBracket,       // ]
+    #[token(":")]
+    Colon,              // :
     #[token(";")]
     Semicolon,          // ;
     #[token(",")]
     Comma,              // ,
     #[token(".")]
     Dot,                // .
+    #[token("..")]
+    DotDot,             // ..
+    #[token("..=")]
+    DotDotEquals,       // ..=
 }
