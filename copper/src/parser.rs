@@ -35,6 +35,10 @@ pub enum Expression {
         array: Box<Expression>,
         index: Box<Expression>,
     },
+    FieldAccess {
+    object: Box<Expression>,
+    field: String,
+    },
     StructLiteral {
         name: String,
         fields: Vec<(String, Expression)>,
@@ -854,7 +858,7 @@ impl Parser {
         self.primary()
     }
 
-    fn primary(&mut self) -> Result<Expression, ParseError> {
+     fn primary(&mut self) -> Result<Expression, ParseError> {
         match self.advance() {
             Some(TokenKind::IntLiteral(value)) => Ok(Expression::Integer(value)),
             Some(TokenKind::FloatLiteral(value)) => Ok(Expression::Float(value)),
@@ -862,37 +866,61 @@ impl Parser {
             Some(TokenKind::CharLiteral(value)) => Ok(Expression::Char(value)),
             Some(TokenKind::StrLiteral(value)) => Ok(Expression::String(value)),
             Some(TokenKind::LeftBracket) => self.array_literal(),
+
             Some(TokenKind::Identifier(name)) => {
-                // Check if struct literal
+                
+                let expr = Expression::Identifier(name.clone());
+                    
                 if matches!(self.peek(), Some(TokenKind::LeftBrace)) {
                     if matches!(self.peek_previous(), Some(TokenKind::Equals | TokenKind::Comma | TokenKind::LeftParenthesis)) {
-                        self.struct_literal(name)
+                        Ok(self.struct_literal(name)?)
                     } else {
                         Ok(Expression::Identifier(name))
                     }
-                }
-                // Check if this is a function call
-                else if matches!(self.peek(), Some(TokenKind::LeftParenthesis)) {
-                    self.advance(); // consume '('
+                } else if matches!(self.peek(), Some(TokenKind::LeftBracket)) {
+                    self.advance();
+                    let index = self.expression()?;
+                    self.consume(TokenKind::RightBracket, "Expected ']' after index")?;
+
+                    return Ok(Expression::IndexAccess { 
+                        array: Box::new(expr), 
+                        index: Box::new(index) 
+                    });
+                } else if matches!(self.peek(), Some(TokenKind::Dot)) {
+                    self.advance();
+                    let field = match self.advance() {
+                        Some(TokenKind::Identifier(name)) => name,
+                        _ => return Err(ParseError::UnexpectedToken(
+                            "Expected field anme after '.'".to_string()    
+                        )),
+                    };
+
+                    return Ok(Expression::FieldAccess { 
+                        object: Box::new(expr), 
+                        field,
+                    });
+                } else if matches!(self.peek(), Some(TokenKind::LeftParenthesis)) {
+                    self.advance();
                     let mut arguments = Vec::new();
-                    
+
                     if !matches!(self.peek(), Some(TokenKind::RightParanthesis)) {
                         loop {
                             arguments.push(self.expression()?);
-                            
+                                
                             if !matches!(self.peek(), Some(TokenKind::Comma)) {
-                                break;
+                                 break;
                             }
-                            self.advance(); // consume comma
+                            self.advance();                             
                         }
                     }
-                    
-                    self.consume(TokenKind::RightParanthesis, "Expected ')' after arguments")?;
-                    
-                    Ok(Expression::FunctionCall {
-                        name,
-                        arguments,
-                    })
+
+                    self.consume(TokenKind::RightParanthesis, "Expected ')' after fieldname.")?;
+
+                    return Ok(Expression:: FunctionCall { 
+                        name, 
+                        arguments, 
+                    });
+
                 } else {
                     Ok(Expression::Identifier(name))
                 }
@@ -909,6 +937,7 @@ impl Parser {
             None => Err(ParseError::UnexpectedEOF),
         }
     }
+
 
     fn array_literal(&mut self) -> Result<Expression, ParseError> {
         let mut elements = Vec::new();
