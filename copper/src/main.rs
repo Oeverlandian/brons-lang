@@ -3,6 +3,7 @@ use std::fs;
 
 mod lexer;
 mod parser;
+mod analyzer;
 
 fn main() {
 
@@ -22,15 +23,23 @@ fn main() {
         tokens.push(token.expect("Lexer error"));
     }
 
+    let mut parsed = Vec::new();
     let mut parser = parser::Parser::new(tokens);
     match parser.parse() {
         Ok(statements) => {
             for stmt in statements {
-                println!("{:#?}", stmt)
+                println!("{:#?}", stmt);
+                parsed.push(stmt); 
             }
         },
         Err(err) => {
             println!("Error: {:?}", err)
         }
+    }
+
+    let mut analyzer = analyzer::SemanticAnalyzer::new();
+    match analyzer.analyze(&parsed) {
+        Ok(_) => println!("Semantic analysis passed"),
+        Err(e) => println!("Semantic error: {:?}", e),
     }
 }
